@@ -133,22 +133,9 @@ def GS_modified(A):
     for i in range(n):
         R[i, i] = np.linalg.norm(A[:, i])
         A[:, i] /= R[i, i]
-        R[i, i:] = A[:, i].conj().T @ A[:, i:]
-        # print(np.shape(np.vstack([A[:, i] for i in range(n-i)])))
-
-        A[:, i:] -= np.vstack([A[:, i] for i in range(n-i)]).T @ np.diag(R[i, i:])
-
-        # print(np.shape(A), np.shape(R))
-        # print(np.shape(R[i, i:]))
-        # print(np.shape(np.vstack([A[:, i] for i in range(n-i)]).T))
-        # print(np.shape(np.inner(R[i, i:], np.vstack([A[:, i] for i in range(n-i)]).T)))
-        # print([A[:, i] for i in range(n-i)])
-
-        # A[:, i:] -= np.inner(R[i, i:], np.vstack([A[:, i] for i in range(n-i)]).T) # np.reshape(R[i, i:], (1, np.size(R[i, i:])))
-
-        # for j in range(i, n):
-        #     A[:, j] -= R[i, j] * A[:, i]
-        # # This loop works, but doesn't pass the tests
+        R[i, i+1:] = A[:, i].conj().T @ A[:, i+1:]
+        for j in range(i+1, n):
+            A[:, j] -= R[i, j] * A[:, i]
 
     return R
 
