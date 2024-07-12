@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 
 
 def orthog_cpts(v, Q):
@@ -16,7 +17,12 @@ def orthog_cpts(v, Q):
     :return u: an n-dimensional numpy array containing the coefficients
     """
 
-    raise NotImplementedError
+    n = np.size(Q, 1)
+    r = np.copy(v)
+    u = np.zeros(n, dtype=complex)
+    for i in range(n):
+        u[i] = np.inner(Q[:, i].conj(), v)
+        r -= u[i] * Q[:, i]
 
     return r, u
 
@@ -31,9 +37,24 @@ def solve_Q(Q, b):
     :return x: m dimensional array containing the solution.
     """
 
-    raise NotImplementedError
+    x = Q.conj().T @ b
 
     return x
+
+
+def time_solve_Q(Q, b):
+    start_time = time()
+    solve_Q(Q, b)
+    print(time() - start_time)
+
+    start_time = time()
+    np.linalg.solve(Q, b)
+    print(time() - start_time)
+
+# For a matrix of size 100, both took 0.0 seconds
+# For a matrix of size 200,  np.linalg.solve was slightly slower than solve_Q
+# For a matrix of size 400,  np.linalg.solve was again slightly slower than
+# solve_Q
 
 
 def orthog_proj(Q):
@@ -48,7 +69,7 @@ def orthog_proj(Q):
     :return P: an mxm-dimensional numpy array containing the projector
     """
 
-    raise NotImplementedError
+    P = Q @ Q.conj().T
 
     return P
 
@@ -64,8 +85,11 @@ def orthog_space(V):
     :return Q: an mxl-dimensional numpy array whose columns are an \
     orthonormal basis for the subspace orthogonal to U, for appropriate l.
     """
-
-    raise NotImplementedError
+    m, n = np.shape(V)
+    Q, R = np.linalg.qr(V, "complete")
+    P = Q @ Q.conj().T
+    P_orth = np.eye(m) - P
+    Q = (P_orth @ Q)[:, :m-n]
 
     return Q
 
@@ -80,9 +104,17 @@ def GS_classical(A):
     :return R: nxn numpy array
     """
 
-    raise NotImplementedError
+    n = np.size(A, 1)
+    R = np.zeros((n, n), dtype=complex)
+
+    for j in range(n):
+        R[:j, j] = A[:, :j].conj().T @ A[:, j]
+        A[:, j] -= A[:, :j] @ R[:j, j]
+        R[j, j] = np.linalg.norm(A[:, j])
+        A[:, j] /= R[j, j]
 
     return R
+
 
 def GS_modified(A):
     """
@@ -95,7 +127,28 @@ def GS_modified(A):
     :return R: nxn numpy array
     """
 
-    raise NotImplementedError
+    n = np.size(A, 1)
+    R = np.zeros((n, n), dtype=complex)
+
+    for i in range(n):
+        R[i, i] = np.linalg.norm(A[:, i])
+        A[:, i] /= R[i, i]
+        R[i, i:] = A[:, i].conj().T @ A[:, i:]
+        # print(np.shape(np.vstack([A[:, i] for i in range(n-i)])))
+
+        A[:, i:] -= np.vstack([A[:, i] for i in range(n-i)]).T @ np.diag(R[i, i:])
+
+        # print(np.shape(A), np.shape(R))
+        # print(np.shape(R[i, i:]))
+        # print(np.shape(np.vstack([A[:, i] for i in range(n-i)]).T))
+        # print(np.shape(np.inner(R[i, i:], np.vstack([A[:, i] for i in range(n-i)]).T)))
+        # print([A[:, i] for i in range(n-i)])
+
+        # A[:, i:] -= np.inner(R[i, i:], np.vstack([A[:, i] for i in range(n-i)]).T) # np.reshape(R[i, i:], (1, np.size(R[i, i:])))
+
+        # for j in range(i, n):
+        #     A[:, j] -= R[i, j] * A[:, i]
+        # # This loop works, but doesn't pass the tests
 
     return R
 

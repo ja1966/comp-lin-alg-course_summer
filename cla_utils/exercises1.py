@@ -21,8 +21,14 @@ def basic_matvec(A, x):
 
     :return b: m-dimensional numpy array
     """
+    m, n = np.shape(A)
+    b = np.zeros(m)
 
-    raise NotImplementedError
+    for i in range(m):
+        for j in range(n):
+            b[i] += A[i, j] * x[j]
+
+    return b
 
 
 def column_matvec(A, x):
@@ -39,8 +45,13 @@ def column_matvec(A, x):
 
     This should be implemented using a single loop over the entries of x
     """
+    m, n = np.shape(A)
+    b = np.zeros(m)
 
-    raise NotImplementedError
+    for i in range(n):
+        b += x[i] * A[:, i]
+
+    return b
 
 
 def timeable_basic_matvec():
@@ -93,7 +104,9 @@ def rank2(u1, u2, v1, v2):
     :param v2: n-dimensional numpy array
     """
 
-    raise NotImplementedError
+    B = np.array([u1, u2]).T
+    C = np.array([np.conj(v1), np.conj(v2)])
+    print(np.shape(B), np.shape(C))
 
     A = B.dot(C)
 
@@ -109,9 +122,19 @@ def rank1pert_inv(u, v):
     :param v: m-dimensional numpy array
     """
 
-    raise NotImplementedError
+    m = np.size(u)
+    Ainv = np.eye(m) - (np.outer(u, v.conj()) / (1 + np.inner(v.conj(), u)))
 
     return Ainv
+
+# Unsure what the line "Add a function to cla_utils.exercises1 that measures
+# the time to compute the inverse of A for an input matrix of size 400" is
+# asking me to do.
+
+
+def time_inverse(A):
+
+    print(timeit.Timer())
 
 
 def ABiC(Ahat, xr, xi):
@@ -125,6 +148,14 @@ def ABiC(Ahat, xr, xi):
     :return zi: m-dimensional numpy arrays containing the imaginary part of z.
     """
 
-    raise NotImplementedError
+    m = np.size(xr)
+    zr = np.zeros(m)
+    zi = np.zeros(m)
+
+    for i in range(m):
+        b_i = np.hstack([Ahat[i, :i], Ahat[i:, i]])
+        c_i = np.hstack([Ahat[:i, i], Ahat[i, i:]])
+        zr += b_i * xr[i] - c_i * xi[i]
+        zi += c_i * xr + b_i * xi
 
     return zr, zi
