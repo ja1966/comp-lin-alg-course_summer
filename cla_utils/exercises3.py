@@ -24,12 +24,7 @@ def householder(A, kmax=None):
             x[0] += np.sign(x[0]) * np.linalg.norm(x)
 
         x /= np.linalg.norm(x)
-        # inner = np.inner(x.conj(), A[k:, k:].T)  # This produces the wrong output
-        # outer = np.outer(x, inner)
-        # A[k:, k:] -= 2 * outer
         A[k:, k:] -= 2 * np.outer(x, np.inner(x.conj(), A[k:, k:].T))
-
-    # return A
 
 
 def solve_U(U, b):
