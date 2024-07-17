@@ -38,8 +38,14 @@ def solve_U(U, b):
        the solution x_i
 
     """
-                     
-    raise NotImplementedError
+    m, k = np.shape(b)
+    x = np.zeros((m, k), dtype=float)
+    x[m-1, :] = b[m-1, :] / U[m-1, m-1]
+
+    for i in range(m-2, -1, -1):
+        x[i, :] = (b[i, :] - U[i, i+1:] @ x[i+1:, :]) / U[i, i]
+
+    return x
 
 
 def householder_solve(A, b):
@@ -55,7 +61,10 @@ def householder_solve(A, b):
     right-hand side vectors x_1,x_2,...,x_k.
     """
 
-    raise NotImplementedError
+    m = np.size(b, 0)
+    A_hat = np.hstack([A, b])
+    householder(A_hat, kmax=m)
+    x = solve_U(A_hat[:, :m], A_hat[:, m:])
 
     return x
 
@@ -70,8 +79,11 @@ def householder_qr(A):
     :return Q: an mxm-dimensional numpy array
     :return R: an mxn-dimensional numpy array
     """
-
-    raise NotImplementedError
+    m, n = np.shape(A)
+    A = np.hstack([A, np.identity(m)])
+    householder(A, kmax=n)
+    R = A[:, :n]
+    Q = A[:, n:].T
 
     return Q, R
 
