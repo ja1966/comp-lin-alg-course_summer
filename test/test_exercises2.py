@@ -92,7 +92,7 @@ def test_GS_modified(m, n):
     A = random.randn(m, m) + 1j*random.randn(m, m)
     A = A[:, 1:n]
     A0 = 1.0*A
-    
+
     R = cla_utils.GS_modified(A)
 
     err = A0 - np.dot(A, R)

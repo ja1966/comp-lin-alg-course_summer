@@ -105,7 +105,7 @@ def GS_classical(A):
     """
 
     n = np.size(A, 1)
-    R = np.zeros((n, n), dtype=complex)
+    R = np.zeros((n, n), dtype=A.dtype)
 
     for j in range(n):
         R[:j, j] = A[:, :j].conj().T @ A[:, j]
@@ -128,7 +128,7 @@ def GS_modified(A):
     """
 
     n = np.size(A, 1)
-    R = np.zeros((n, n), dtype=complex)
+    R = np.zeros((n, n), dtype=A.dtype)
 
     for i in range(n):
         R[i, i] = np.linalg.norm(A[:, i])
@@ -138,6 +138,17 @@ def GS_modified(A):
             A[:, j] -= R[i, j] * A[:, i]
 
     return R
+
+# Ex 3.6
+
+
+def mutual_orthogonality():
+    A = np.random.rand(100, 100)
+    A_copy = np.copy(A)
+    R_classical = GS_classical(A)
+    R_modified = GS_modified(A_copy)
+
+    return A @ A_copy
 
 
 def GS_modified_get_R(A, k):
@@ -154,9 +165,14 @@ def GS_modified_get_R(A, k):
     :return R: nxn numpy array
     """
 
-    raise NotImplementedError
+    n = np.size(A, 1)
+    R = np.identity(n, dtype=A.dtype)
+
+    R[k, k] = np.linalg.norm(A[:, k])
+    R[k, k+1:] = A[:, k] @ A[:, k+1:]
 
     return R
+
 
 def GS_modified_R(A):
     """

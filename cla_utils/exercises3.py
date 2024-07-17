@@ -16,7 +16,20 @@ def householder(A, kmax=None):
     if kmax is None:
         kmax = n
 
-    raise NotImplementedError
+    for k in range(kmax):
+        x = np.copy(A[k:, k])
+        if np.sign(x[0]) == 0:
+            x[0] += np.linalg.norm(x)
+        else:
+            x[0] += np.sign(x[0]) * np.linalg.norm(x)
+
+        x /= np.linalg.norm(x)
+        # inner = np.inner(x.conj(), A[k:, k:].T)  # This produces the wrong output
+        # outer = np.outer(x, inner)
+        # A[k:, k:] -= 2 * outer
+        A[k:, k:] -= 2 * np.outer(x, np.inner(x.conj(), A[k:, k:].T))
+
+    # return A
 
 
 def solve_U(U, b):
