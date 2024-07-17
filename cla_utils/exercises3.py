@@ -99,6 +99,11 @@ def householder_ls(A, b):
     :return x: an n-dimensional numpy array
     """
 
-    raise NotImplementedError
+    m, n = np.shape(A)
+    A_hat = np.hstack([A, b.reshape(m, 1)])
+    householder(A_hat, kmax=n)
+    R_hat = A_hat[:n, :n]
+    b_hat = A_hat[:n, -1]
+    x = solve_U(R_hat, b_hat.reshape((np.size(b_hat, 0), 1))).reshape(n)
 
     return x
