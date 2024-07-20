@@ -1,5 +1,7 @@
 import numpy as np
 import numpy.random as random
+import cla_utils
+
 
 def get_A100():
     """
@@ -57,7 +59,7 @@ def get_D100():
 def get_A3():
     """
     Return A3 matrix for investigating power iteration.
-    
+
     :return A3: a 3x3 numpy array.
     """
 
@@ -80,7 +82,7 @@ def get_B3():
 def pow_it(A, x0, tol, maxit, store_iterations = False):
     """
     For a matrix A, apply the power iteration algorithm with initial
-    guess x0, until either 
+    guess x0, until either
 
     ||r|| < tol where
 
@@ -102,7 +104,25 @@ def pow_it(A, x0, tol, maxit, store_iterations = False):
     :return lambda0: the final eigenvalue.
     """
 
-    raise NotImplementedError
+    nits = 0
+    x = x0
+    lambda0 = 0
+    m = np.size(A, 0)
+
+    if store_iterations:
+        x_store = np.zeros((m, maxit))
+
+    while nits <= maxit and np.linalg.norm(A@x - lambda0*x) >= tol:
+        x = A@x
+        x /= np.linalg.norm(x)
+        lambda0 = x.T @ A @ x
+        if store_iterations:
+            x_store[nits] = x
+        nits += 1
+
+    if store_iterations:
+        return x_store, lambda0
+
     return x, lambda0
 
 
@@ -129,7 +149,30 @@ def inverse_it(A, x0, mu, tol, maxit, store_iterations = False):
     all the iterates.
     """
 
-    raise NotImplementedError
+    nits = 0
+    x = x0
+    lambda0 = 0
+    m = np.size(A, 0)
+
+    if store_iterations:
+        x_store = np.zeros((m, maxit))
+        eig_store = np.zeros(maxit)
+
+    while nits <= maxit and np.linalg.norm(A@x - lambda0*x) >= tol:
+        w = cla_utils.householder_solve(A - mu * np.identity(m), x.reshape((m, 1)))
+        x = w / np.linalg.norm(w)
+        lambda0 = x.T @ A @ x
+
+        if store_iterations:
+            x_store[nits] = x
+            eig_store[nits] = lambda0
+
+        nits += 1
+
+    if store_iterations:
+        return x_store, eig_store
+
+    return x, lambda0
 
 
 def rq_it(A, x0, tol, maxit, store_iterations = False):
@@ -154,12 +197,37 @@ def rq_it(A, x0, tol, maxit, store_iterations = False):
     all the iterates.
     """
 
-    raise NotImplementedError
+    nits = 0
+    x = x0
+    lambda0 = x.T @ A @ x
+    m = np.size(A, 0)
+
+    if store_iterations:
+        x_store = np.zeros((m, maxit))
+        eig_store = np.zeros(maxit)
+
+    while nits <= maxit and np.linalg.norm(A@x - lambda0*x) >= tol:
+        w = cla_utils.householder_solve(A - lambda0 * np.identity(m), x.reshape((m, 1)))
+        x = w / np.linalg.norm(w)
+        lambda0 = x.T @ A @ x
+
+        if store_iterations:
+            x_store[nits] = x
+            eig_store[nits] = lambda0
+
+        nits += 1
+
+    if store_iterations:
+        return x_store, eig_store
+
+    return x, lambda0
 
 
 def pure_QR(A, maxit, tol):
     """
-    For matrix A, apply the QR algorithm and return the result.
+    For matrix A, apply the QR algorithm and return the result. Convergence is
+    based on the sum of the entries below the diagonal being lower than the
+    specified tolerance.
 
     :param A: an mxm numpy array
     :param maxit: the maximum number of iterations
@@ -168,6 +236,14 @@ def pure_QR(A, maxit, tol):
     :return Ak: the result
     """
 
-    raise NotImplementedError
+    nits = 0
+    m = np.size(A, 0)
+    x, lambda_max = pow_it(A, np.ones(m), tol, maxit)
+    Ak = A
 
+    while nits <= maxit and np.abs(np.tril(Ak).sum()-np.trace(Ak)) >= tol:
+        Q, R = cla_utils.householder_qr(Ak)
+        Ak = R @ Q
+        nits += 1
 
+    return Ak
