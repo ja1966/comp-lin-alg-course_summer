@@ -1,4 +1,6 @@
 import numpy as np
+import cla_utils
+
 
 def Q1AQ1s(A):
     """
@@ -10,7 +12,12 @@ def Q1AQ1s(A):
     :return A1: an mxm numpy array
     """
 
-    raise NotImplementedError
+    cla_utils.householder(A, kmax=0)
+    A = A.conj().T
+    cla_utils.householder(A, kmax=0)
+    A = A.conj().T
+
+    return A
 
 
 def hessenberg(A):
@@ -21,7 +28,19 @@ def hessenberg(A):
     :param A: an mxm numpy array
     """
 
-    raise NotImplementedError
+    m = np.size(A, 0)
+
+    for k in range(m-2):
+        x = np.copy(A[k+1:, k])
+
+        if np.sign(x[0]) == 0:
+            x[0] += np.linalg.norm(x)
+        else:
+            x[0] += np.sign(x[0]) * np.linalg.norm(x)
+
+        x /= np.linalg.norm(x)
+        A[k+1:, k:] -= 2 * np.outer(x, np.inner(x.conj(), A[k+1:, k:].T))
+        A[:, k+1:] -= 2 * np.outer(A[:, k+1:] @ x, x.conj().T)
 
 
 def hessenbergQ(A):
@@ -31,11 +50,40 @@ def hessenbergQ(A):
     for which QHQ^* = A.
 
     :param A: an mxm numpy array
-    
+
     :return Q: an mxm numpy array
     """
 
-    raise NotImplementedError
+    m = np.size(A, 0)
+    Q = np.identity(m)
+    A0 = np.copy(A)
+
+    for k in range(m):
+        x_Q = np.copy(A0[k:, k])
+
+        if np.sign(x_Q[0]) == 0:
+            x_Q[0] += np.linalg.norm(x_Q)
+        else:
+            x_Q[0] += np.sign(x_Q[0]) * np.linalg.norm(x_Q)
+
+        x_Q /= np.linalg.norm(x_Q)
+        Q[k:, k:] = Q[k:, k:] @ (np.identity(m-k) - 2 * np.outer(x_Q, x_Q.conj().T))
+
+    for k in range(m-2):
+        x = np.copy(A[k+1:, k])
+
+        if np.sign(x[0]) == 0:
+            x[0] += np.linalg.norm(x)
+        else:
+            x[0] += np.sign(x[0]) * np.linalg.norm(x)
+
+        x /= np.linalg.norm(x)
+
+        A[k+1:, k:] -= 2 * np.outer(x, np.inner(x.conj(), A[k+1:, k:].T))
+        A[:, k+1:] -= 2 * np.outer(A[:, k+1:] @ x, x.conj().T)
+
+    return Q
+
 
 def hessenberg_ev(H):
     """
