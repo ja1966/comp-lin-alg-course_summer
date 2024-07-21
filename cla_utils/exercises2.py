@@ -190,7 +190,7 @@ def GS_modified_R(A):
     R = np.eye(n, dtype=A.dtype)
     for i in range(n):
         Rk = GS_modified_get_R(A, i)
-        A[:,:] = np.dot(A, Rk)
-        R[:,:] = np.dot(R, Rk)
+        A[:, :] = np.dot(A, Rk)
+        R[:, :] = np.dot(R, Rk)
     R = np.linalg.inv(R)
     return A, R

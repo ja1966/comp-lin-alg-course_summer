@@ -56,50 +56,21 @@ def hessenbergQ(A):
 
     m = np.size(A, 0)
     Q = np.identity(m)
-    A0 = np.copy(A)
 
     for k in range(m-2):
         x = np.copy(A[k+1:, k])
-        # x_Q = np.copy(A[k:, k])
 
         if np.sign(x[0]) == 0:
             x[0] += np.linalg.norm(x)
         else:
             x[0] += np.sign(x[0]) * np.linalg.norm(x)
 
-        # if np.sign(x_Q[0]) == 0:
-        #     x_Q[0] += np.linalg.norm(x_Q)
-        # else:
-        #     x_Q[0] += np.sign(x_Q[0]) * np.linalg.norm(x_Q)
-
         x /= np.linalg.norm(x)
-        # x_Q /= np.linalg.norm(x_Q)
-        Q[k+1:, :] = (np.identity(m-k-1) - 2 * np.outer(x, x.conj().T)) @ Q[k+1:, :]
+        Q[k+1:, :] = ((np.identity(m-k-1) - 2 * np.outer(x, x.conj().T)) @
+                      Q[k+1:, :])
         A[k+1:, k:] -= 2 * np.outer(x, np.inner(x.conj(), A[k+1:, k:].T))
         A[:, k+1:] -= 2 * np.outer(A[:, k+1:] @ x, x.conj().T)
-        y = Q @ A @ Q.conj().T
-        z = A0
     Q = Q.conj().T
-
-
-    # A = Q.conj().T @ A @ Q
-
-        # print(Q)
-    # A0 = np.copy(A)
-
-    # for k in range(m):
-    #     x_Q = np.copy(A[k:, k])
-
-    #     if np.sign(x_Q[0]) == 0:
-    #         x_Q[0] += np.linalg.norm(x_Q)
-    #     else:
-    #         x_Q[0] += np.sign(x_Q[0]) * np.linalg.norm(x_Q)
-
-    #     x_Q /= np.linalg.norm(x_Q)
-
-    #     Q[k:, k:] = Q[k:, k:] @ (np.identity(m-k) - 2 * np.outer(x_Q, x_Q.conj().T))
-
-    # A = A0
 
     return Q
 
@@ -132,7 +103,6 @@ def ev(A):
     :return V: an mxm numpy array whose columns are the eigenvectors of A
     """
     hessenberg(A)
-    # print(A)
+    print(A)
     V = hessenberg_ev(A)
-    # print(V)
     return V

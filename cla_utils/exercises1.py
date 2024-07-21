@@ -34,7 +34,7 @@ def basic_matvec(A, x):
 def column_matvec(A, x):
     """
     Matrix-vector multiplication using the representation of the product
-    Ax as linear combinations of the columns of A, using the entries in 
+    Ax as linear combinations of the columns of A, using the entries in
     x as coefficients.
 
 
