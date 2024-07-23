@@ -103,6 +103,6 @@ def ev(A):
     :return V: an mxm numpy array whose columns are the eigenvectors of A
     """
     hessenberg(A)
-    print(A)
     V = hessenberg_ev(A)
+
     return V

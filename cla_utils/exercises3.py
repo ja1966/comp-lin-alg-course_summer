@@ -39,7 +39,7 @@ def solve_U(U, b):
 
     """
     m, k = np.shape(b)
-    x = np.zeros((m, k), dtype=float)
+    x = np.zeros((m, k), dtype=type(U))
     x[m-1, :] = b[m-1, :] / U[m-1, m-1]
 
     for i in range(m-2, -1, -1):

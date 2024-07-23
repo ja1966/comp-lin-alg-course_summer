@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.random as random
+import cla_utils
 
 
 def arnoldi(A, b, k):
@@ -15,8 +16,19 @@ def arnoldi(A, b, k):
     :return H: a (k+1)xk dimensional numpy array containing the upper \
     Hessenberg matrix
     """
+    m = np.size(A, 0)
+    Q = np.zeros((m, k+1), dtype=complex)
+    H = np.zeros((k+1, k), dtype=complex)
+    Q[:, 0] = b / np.linalg.norm(b)
 
-    raise NotImplementedError
+    for i in range(k):
+        v = A @ Q[:, i]
+        H[:i+1, i] = Q[:, :i+1].conj().T @ v
+        v -= Q[:, :i+1] @ H[:i+1, i]
+        H[i+1, i] = np.linalg.norm(v)
+        Q[:, i+1] = v / np.linalg.norm(v)
+
+    return Q, H
 
 
 def GMRES(A, b, maxit, tol, return_residual_norms=False,
@@ -39,8 +51,68 @@ def GMRES(A, b, maxit, tol, return_residual_norms=False,
     :return r: mxnits dimensional numpy array, column k contains residual \
     at iteration k
     """
-    
-    raise NotImplementedError
+
+    residual = 1
+    nits = 0
+    m = np.size(A, 0)
+    # Q_GMRES = np.zeros(m, dtype=complex)
+
+    Q = np.zeros((m, maxit+1), dtype=complex)
+    H = np.zeros((maxit+1, maxit), dtype=complex)
+    Q[:, 0] = b / np.linalg.norm(b)
+
+    rnorms = np.zeros(maxit, dtype=complex)
+    r = np.zeros((maxit, maxit), dtype=complex)
+
+    while residual >= tol and nits <= maxit:
+
+        # Step n of Arnoldi
+        v = A @ Q[:, nits]
+        H[:nits+1, nits] = Q[:, :nits+1].conj().T @ v
+        v -= Q[:, :nits+1] @ H[:nits+1, nits]
+        H[nits+1, nits] = np.linalg.norm(v)
+        Q[:, nits+1] = v / np.linalg.norm(v)
+
+        # Finding y to minimise the residual
+        # if nits == 0:
+        #     print(np.shape(H[:nits+2, :nits+1]))
+        #     print(np.shape(np.array([np.linalg.norm(b)])))
+        #     y = cla_utils.householder_ls(H[:nits+2, :nits+1], np.array([np.linalg.norm(b)]))
+        # else:
+        e_1 = np.concatenate([np.ones(1), np.zeros(nits+1)], dtype=complex)
+        # print(np.shape(H[:nits+2, :nits+1]))
+        # print(np.shape(e_1))
+        y = cla_utils.householder_ls(H[:nits+2, :nits+1], (np.linalg.norm(b) * e_1))
+
+        x_n = Q[:nits+1, :nits+1] @ y
+
+        # if nits == 0:
+        #     # print(np.shape(H[:m, :nits+1]))
+        #     # print(np.shape(y))
+        #     r[:, nits] = (H[:m, :nits+1] @ y) - np.array([np.linalg.norm(b)])
+        # else:
+        # e_1 = np.concatenate([np.ones(1), np.zeros(nits+1)])
+        # print(nits)
+        # print(np.shape(H[:m, :nits+1]))
+        # print(np.shape(y))
+        # print(np.shape(e_1))
+        r[:nits+2, nits] = (H[:nits+2, :nits+1] @ y) - np.linalg.norm(b) * e_1
+
+        residual = np.linalg.norm(r[:, nits])
+        rnorms[nits] = residual
+        nits += 1
+
+    if nits <= maxit:
+        nits = -1
+
+    if return_residual_norms and return_residuals:
+        return x_n, nits, rnorms, r
+    elif return_residual_norms:
+        return x_n, nits, rnorms
+    elif return_residuals:
+        return x_n, nits, r
+    else:
+        return x_n, nits
 
 
 def get_AA100():
