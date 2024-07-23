@@ -55,8 +55,6 @@ def GMRES(A, b, maxit, tol, return_residual_norms=False,
     residual = 1
     nits = 0
     m = np.size(A, 0)
-    # Q_GMRES = np.zeros(m, dtype=complex)
-
     Q = np.zeros((m, maxit+1), dtype=complex)
     H = np.zeros((maxit+1, maxit), dtype=complex)
     Q[:, 0] = b / np.linalg.norm(b)
@@ -74,35 +72,21 @@ def GMRES(A, b, maxit, tol, return_residual_norms=False,
         Q[:, nits+1] = v / np.linalg.norm(v)
 
         # Finding y to minimise the residual
-        # if nits == 0:
-        #     print(np.shape(H[:nits+2, :nits+1]))
-        #     print(np.shape(np.array([np.linalg.norm(b)])))
-        #     y = cla_utils.householder_ls(H[:nits+2, :nits+1], np.array([np.linalg.norm(b)]))
-        # else:
         e_1 = np.concatenate([np.ones(1), np.zeros(nits+1)], dtype=complex)
-        # print(np.shape(H[:nits+2, :nits+1]))
-        # print(np.shape(e_1))
         y = cla_utils.householder_ls(H[:nits+2, :nits+1], (np.linalg.norm(b) * e_1))
 
         x_n = Q[:nits+1, :nits+1] @ y
 
-        # if nits == 0:
-        #     # print(np.shape(H[:m, :nits+1]))
-        #     # print(np.shape(y))
-        #     r[:, nits] = (H[:m, :nits+1] @ y) - np.array([np.linalg.norm(b)])
-        # else:
-        # e_1 = np.concatenate([np.ones(1), np.zeros(nits+1)])
-        # print(nits)
-        # print(np.shape(H[:m, :nits+1]))
-        # print(np.shape(y))
-        # print(np.shape(e_1))
         r[:nits+2, nits] = (H[:nits+2, :nits+1] @ y) - np.linalg.norm(b) * e_1
-
         residual = np.linalg.norm(r[:, nits])
         rnorms[nits] = residual
         nits += 1
 
+    # To check that rnorms and r return the correct matrices for the coursework
+
     if nits <= maxit:
+        rnorms = rnorms[:nits]
+        r = r[:nits+2, :nits+1]
         nits = -1
 
     if return_residual_norms and return_residuals:
