@@ -100,7 +100,7 @@ def householder_ls(A, b):
     """
 
     m, n = np.shape(A)
-    A_hat = np.hstack([A, b.reshape(m, 1)])
+    A_hat = np.concatenate([A, b.reshape(m, 1)], axis=1)
     householder(A_hat, kmax=n)
     R_hat = A_hat[:n, :n]
     b_hat = A_hat[:n, -1]

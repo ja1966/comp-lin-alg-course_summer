@@ -73,10 +73,69 @@ def GMRES(A, b, maxit, tol, return_residual_norms=False,
 
         # Finding y to minimise the residual
         e_1 = np.concatenate([np.ones(1), np.zeros(nits+1)], dtype=complex)
-        y = cla_utils.householder_ls(H[:nits+2, :nits+1], (np.linalg.norm(b) * e_1))
+        y = cla_utils.householder_ls(H[:nits+2, :nits+1], (np.linalg.norm(b)
+                                                           * e_1))
 
+        # Will ignore Ex 6.3, as not necessary for coursework.
+
+        # p, q = np.shape(H[:nits+2, :nits+1])
+        # b_ls = np.linalg.norm(b) * e_1
+        # # A_hat = np.concatenate([H[:nits+2, :nits+1, b_ls.reshape(p, 1)], axis=1)
+        # # print(np.shape(A_hat))
+        # # print(np.shape(H[:nits+2, nits+1].reshape(len(H[:nits+2, nits+1]), 1)))
+        # # print(np.shape(b_ls.reshape(p, 1)))
+        # # A_hat = np.concatenate([A_hat[:, :-1], H[:nits+2, nits+1].reshape(len(H[:nits+2, nits+1]), 1), b_ls.reshape(p, 1)], axis=1)
+        # # print(np.shape(A_hat))
+        # # print(np.shape(H[nits+2, :nits+1]))
+        # # A_hat = np.concatenate([A_hat, H[nits+2, :nits+1]], axis=0)
+        # cla_utils.householder(A_hat, kmax=1)
+        # R_hat = A_hat[:q, :q]
+        # b_ls_hat = A_hat[:q, -1]
+        # x = cla_utils.solve_U(R_hat, b_ls_hat.reshape((np.size(b_ls_hat, 0), 1))).reshape(q)
+
+        # p, q = np.shape(H[:nits+2, :nits+1])
+        # b_ls = np.linalg.norm(b) * e_1
+        # if nits == 0:
+        #     A_hat = H[:nits+2, :nits+1]
+        # else:
+        #     # print(nits)
+        #     # Form A_hat
+        #     A_hat = A_hat[:, :-1]  # Remove b_ls from the last column
+        #     # print(np.shape(A_hat))
+        #     # print(np.shape(H[:nits+2, nits]))
+        #     A_hat = np.concatenate([A_hat, H[:nits+1, nits].reshape(len(H[:nits+1, nits]), 1)], axis=1)  # Add a column of H to A_hat
+        #     # print(np.shape(A_hat))
+        #     # print(np.shape(H[nits+1, :nits+1].reshape(len(H[nits+1, :nits+1]), 1)))
+        #     A_hat = np.concatenate([A_hat, H[nits+1, :nits+1].reshape(len(H[nits+1, :nits+1]), 1).T], axis=0)  # Add a row of H to A_hat
+
+        # print(np.shape(A_hat))
+        # print(np.shape(b_ls.reshape(p, 1)))
+        # A_hat = np.concatenate([A_hat, b_ls.reshape(p, 1)], axis=1)
+        # cla_utils.householder(A_hat, 1)
+        # R_hat = A_hat[:q, :q]
+        # b_ls_hat = A_hat[:q, -1]
+        # x = cla_utils.solve_U(R_hat, b_ls_hat.reshape((np.size(b_ls_hat, 0), 1))).reshape(q)
+
+
+
+        # p, q = np.shape(H[:nits+2, :nits+1])
+        # b_ls = np.linalg.norm(b) * e_1
+        # A_hat = 
+        # A_hat = np.concatenate([H[:nits+2, :nits+1], b_ls.reshape(p, 1)], axis=1)
+        # cla_utils.householder(A_hat, kmax=q)
+        # R_hat = A_hat[:q, :q]
+        # b_ls_hat = A_hat[:q, -1]
+        # x = cla_utils.solve_U(R_hat, b_ls_hat.reshape((np.size(b_ls_hat, 0), 1))).reshape(q)
+
+
+        # x_n = Q[:nits+1, :nits+1] @ x
         x_n = Q[:nits+1, :nits+1] @ y
-
+        # print(np.shape(x))
+        # print(np.shape(H[:nits+2, :nits+1]))
+        # print(np.shape(H[:nits+2, :nits+1] @ x))
+        # print(np.shape(e_1))
+        # print(np.shape(r[:nits+2, nits]))
+        # r[:nits+2, nits] = (H[:nits+2, :nits+1] @ x) - np.linalg.norm(b) * e_1
         r[:nits+2, nits] = (H[:nits+2, :nits+1] @ y) - np.linalg.norm(b) * e_1
         residual = np.linalg.norm(r[:, nits])
         rnorms[nits] = residual
